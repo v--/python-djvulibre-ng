@@ -1,0 +1,41 @@
+[project]
+name = "djvulibre-ng"
+description = "Modernized bindings for DjVuLibre"
+version = "0.0.0"
+requires-python = ">=3.11"
+
+classifiers = [
+  "Private :: Do Not Upload",
+]
+
+[build-system]
+requires = ["meson-python (>=0.20)", "pybind11 (>=3.0)"]
+build-backend = "mesonpy"
+
+[dependency-groups]
+# lint = [
+#   "ruff (>=0.16)",
+#   "ruff-config-ivasilev @ git+https://github.com/v--/ruff-config-ivasilev.git@v0.16.post1",
+# ]
+
+# typing = [
+#   { include-group = "test" },
+#   "mypy (>=2)",
+# ]
+
+test = [
+  "pytest (>=9.0.3)",
+]
+
+dev = [
+  "poethepoet (>=0.45)",
+  "tox (>=4.50)",
+  # { include-group = "lint" },
+  # { include-group = "typing" },
+  { include-group = "test" },
+]
+
+[tool.pytest]
+# This is needed for testing with meson-python
+#   See https://github.com/mesonbuild/meson-python/issues/642
+addopts = ["--import-mode", "importlib"]
