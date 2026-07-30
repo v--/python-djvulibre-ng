@@ -1,0 +1,38 @@
+name: Static analysis
+
+on:
+  push:
+    branches:
+      - 'master'
+
+  pull_request:
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-26.04
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install prerequisites on Ubuntu
+      run: |
+        sudo apt update
+        sudo apt install --yes libdjvulibre-dev pybind11-dev meson ninja-build python-is-python3 clang-tidy
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v9.0.0
+      with:
+        python-version: 3.14
+
+    - name: Install Python lint dependencies
+      run: uv sync --frozen --group lint --no-default-groups
+
+    - name: Lint C++ code
+      run: |
+        meson setup builddir
+        ninja -C builddir clang-tidy
+
+    - name: Lint Python code
+      run: uv run --no-sync ruff check
+
+    # - name: Typing
+    #   run: uv run --no-sync mypy

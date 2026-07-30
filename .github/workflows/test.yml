@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - 'master'
+
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-26.04
+            python: 3.14
+          - os: macos-14
+            python: 3.14
+          - os: windows-2025
+            python: 3.14
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install prerequisites on Ubuntu
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        sudo apt update
+        sudo apt install --yes libdjvulibre21 libdjvulibre-dev
+
+    - name: Install prerequisites on macOS
+      if: startsWith(matrix.os, 'macos')
+      run: brew install djvulibre
+
+    # This commands precludes the needs to install the following packages:
+    #   winget install Microsoft.VisualStudio.BuildTools
+    #   winget install Microsoft.WindowsSDK.10.0.28000
+    #   # https://gist.github.com/robotdad/83041ccfe1bea895ffa0739192771732?permalink_comment_id=4863155#gistcomment-4863155
+    #   winget install Microsoft.VisualStudio.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop"
+    - name: Setting up dev environment on Windows
+      if: startsWith(matrix.os, 'windows')
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Install prerequisites on Windows
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        winget install --accept-source-agreements --accept-package-agreements DjVuLibre.DjView
+        winget install --accept-source-agreements --accept-package-agreements bloodrock.pkg-config-lite
+        winget install --accept-source-agreements --accept-package-agreements Microsoft.VisualStudio.Locator
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v9.0.0
+      with:
+        python-version: ${{ matrix.python }}
+        activate-environment: true
+
+    - name: Build the package
+      run: uv build
+
+    - name: Install project
+      run: uv pip install dist/*.whl
+
+    - name: Install test dependencies
+      run: uv pip install --group test
+
+    - name: Run tests
+      run: pytest .venv/lib/python${{ matrix.python }}/site-packages/djvulibre
