@@ -48,11 +48,28 @@ dev = [
 [tool.uv]
 no-build-isolation = true
 
+# ruff
+[tool.ruff]
+extend = ".venv/share/ruff/ruff.ivasilev.toml"
+preview = true
+
+[tool.ruff.lint]
+ignore = [
+  "D1", # undocumented-*
+]
+
 # mypy
 [tool.mypy]
 packages = ["djvulibre"]
+
+[[tool.mypy.overrides]]
+module = [
+  "mesonbuild.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest]
 # This is needed for testing with meson-python
 #   See https://github.com/mesonbuild/meson-python/issues/642
 addopts = ["--import-mode", "importlib"]
+pythonpath = ["src"]
