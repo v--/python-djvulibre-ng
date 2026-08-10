@@ -20,8 +20,6 @@ In case you have the prerequisites installed (see below), it should be enough to
 
 The garden variety Python workflows supported by [`uv`](https://docs.astral.sh/uv/) rely on build isolation, which is incompatible with [`meson-python`](https://mesonbuild.com/meson-python/) (see e.g. [this issue](https://github.com/astral-sh/uv/issues/10214)). Our solution is to disable build isolation in the uv-specific settings in `pyproject.toml`.
 
-Consult the [GitHub Actions workflow](./.github/workflows/test.yml).
-
 ## Prerequisites
 
-On UNIX systems, we rely on `djvulibre` being installed and discoverable.
+On UNIX systems, we rely on `djvulibre` being installed and discoverable. On Windows, due to the lack of [RPATH](https://en.wikipedia.org/wiki/Rpath) support (see the `meson-python` docs [here](https://mesonbuild.com/meson-python/how-to-guides/shared-libraries.html)), we include `djvulibre` itself as a submodule (for extracting header files) and [`djvulibre-bin`](https://github.com/v--/djvulibre-bin) with precompiled Windows libraries get embedded in the wheel file.
