@@ -28,13 +28,25 @@ test = [
   "pytest (>=9.0.3)",
 ]
 
+# Building without "uv build" requires the build dependencies. We simply duplicate them.
+build = [
+  "meson-python (>=0.20)",
+  "pybind11 (>=3.0)",
+]
+
 dev = [
   "poethepoet (>=0.45)",
   "tox (>=4.50)",
+
   { include-group = "lint" },
   # { include-group = "typing" },
+  { include-group = "build" },
   { include-group = "test" },
 ]
+
+# uv
+[tool.uv]
+no-build-isolation = true
 
 # mypy
 [tool.mypy]

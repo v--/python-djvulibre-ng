@@ -24,7 +24,7 @@ jobs:
         python-version: 3.14
 
     - name: Install Python lint dependencies
-      run: uv sync --frozen --group lint --no-default-groups
+      run: uv sync --frozen --group lint --no-default-groups --no-install-project
 
     - name: Lint C++ code
       run: |

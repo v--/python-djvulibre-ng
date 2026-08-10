@@ -14,7 +14,14 @@ Goals:
 * Tests with public domain books (generating test data for specific cases turns out to be more difficult).
 * I plan to use `GPL-2.0-or-later`, like DjVuLibre itself, compared to `GPL-2.0-only` for [python-djvulibre](https://github.com/jwilk-archive/python-djvulibre) (the reason why I started this project from scratch instead of contributing).
 
+## Project setup
 
-## Installation
+In case you have the prerequisites installed (see below), it should be enough to run `uv sync` to set up the project as an editable install in a virtual environment.
+
+The garden variety Python workflows supported by [`uv`](https://docs.astral.sh/uv/) rely on build isolation, which is incompatible with [`meson-python`](https://mesonbuild.com/meson-python/) (see e.g. [this issue](https://github.com/astral-sh/uv/issues/10214)). Our solution is to disable build isolation in the uv-specific settings in `pyproject.toml`.
 
 Consult the [GitHub Actions workflow](./.github/workflows/test.yml).
+
+## Prerequisites
+
+On UNIX systems, we rely on `djvulibre` being installed and discoverable.
