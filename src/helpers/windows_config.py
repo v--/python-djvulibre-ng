@@ -1,4 +1,5 @@
 """Module for development-time hacks for Windows."""
+
 import configparser
 import pathlib
 

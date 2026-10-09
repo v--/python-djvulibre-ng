@@ -1,1 +1,0 @@
-minivar_t: type

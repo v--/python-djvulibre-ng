@@ -1,1 +1,0 @@
-DDJVUAPI_VERSION: int

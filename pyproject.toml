@@ -10,8 +10,9 @@ classifiers = [
 ]
 
 [build-system]
-requires = ["meson-python (>=0.20)", "pybind11 (>=3.0)"]
-build-backend = "mesonpy"
+# uv build complains if no upper bound is set, but it updates its minor versions often, so we put a major version just to shut it up
+requires = ["uv_build (>=0.10, <1)"]
+build-backend = "uv_build"
 
 [dependency-groups]
 lint = [
@@ -28,25 +29,22 @@ test = [
   "pytest (>=9.0.3)",
 ]
 
-# Building without "uv build" requires the build dependencies. We simply duplicate them.
-build = [
-  "meson-python (>=0.20)",
-  "pybind11 (>=3.0)",
-]
-
 dev = [
   "poethepoet (>=0.45)",
   "tox (>=4.50)",
 
   { include-group = "lint" },
   # { include-group = "typing" },
-  { include-group = "build" },
   { include-group = "test" },
 ]
 
 # uv
 [tool.uv]
-no-build-isolation = true
+resolution = "lowest-direct"
+
+[tool.uv.build-backend]
+module-name = "djvulibre"
+source-include = ["REUSE.toml"]
 
 # ruff
 [tool.ruff]

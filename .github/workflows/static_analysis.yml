@@ -16,7 +16,7 @@ jobs:
     - name: Install prerequisites on Ubuntu
       run: |
         sudo apt update
-        sudo apt install --yes libdjvulibre-dev pybind11-dev meson ninja-build python-is-python3 clang-tidy
+        sudo apt install --yes libdjvulibre21
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v9.0.0
@@ -25,11 +25,6 @@ jobs:
 
     - name: Install Python lint dependencies
       run: uv sync --frozen --group lint --no-default-groups --no-install-project
-
-    - name: Lint C++ code
-      run: |
-        meson setup builddir
-        ninja -C builddir clang-tidy
 
     - name: Lint Python code
       run: uv run --no-sync ruff check
