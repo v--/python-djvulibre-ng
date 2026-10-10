@@ -119,9 +119,17 @@ wheels = [
 ]
 
 [[package]]
+name = "djvulibre-bin"
+version = "0.1.0"
+source = { directory = "/src/djvulibre-bin" }
+
+[[package]]
 name = "djvulibre-ng"
 version = "0.0.0"
 source = { editable = "." }
+dependencies = [
+    { name = "djvulibre-bin" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -153,6 +161,7 @@ typing = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "djvulibre-bin", directory = "/src/djvulibre-bin" }]
 
 [package.metadata.requires-dev]
 dev = [

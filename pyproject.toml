@@ -3,7 +3,9 @@ name = "djvulibre-ng"
 description = "Modernized bindings for DjVuLibre"
 version = "0.0.0"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "djvulibre-bin @ git+https://github.com/v--/djvulibre-bin.git; os_name=='nt'"
+]
 
 classifiers = [
   "Private :: Do Not Upload",
