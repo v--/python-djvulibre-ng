@@ -1,4 +1,4 @@
-from .libdjvulibre import libdjvulibre
+from . import libdjvulibre
 
 
 def test_ddjvu_get_version_string() -> None:
