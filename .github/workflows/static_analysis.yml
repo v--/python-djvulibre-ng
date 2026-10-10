@@ -21,13 +21,13 @@ jobs:
     - name: Setup uv
       uses: astral-sh/setup-uv@v9.0.0
       with:
-        python-version: 3.14
+        python-version: 3.15
 
-    - name: Install Python lint dependencies
-      run: uv sync --frozen --group lint --no-default-groups --no-install-project
+    - name: Install Python lint and typing dependencies
+      run: uv sync --frozen --group lint --group typing --no-default-groups
 
-    - name: Lint Python code
+    - name: Lint code
       run: uv run --no-sync ruff check
 
-    # - name: Typing
-    #   run: uv run --no-sync mypy
+    - name: Type-check code
+      run: uv run --no-sync mypy

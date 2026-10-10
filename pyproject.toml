@@ -4,7 +4,7 @@ description = "Modernized bindings for DjVuLibre"
 version = "0.0.0"
 requires-python = ">=3.11"
 dependencies = [
-  "djvulibre-bin @ git+https://github.com/v--/djvulibre-bin.git; os_name=='nt'"
+  "djvulibre-bin @ git+https://github.com/v--/djvulibre-bin.git ; os_name=='nt'"
 ]
 
 classifiers = [
@@ -68,3 +68,9 @@ ignore = [
 # mypy
 [tool.mypy]
 packages = ["djvulibre"]
+
+[[tool.mypy.overrides]]
+module = [
+  "djvulibre_bin.*",
+]
+ignore_missing_imports = true
