@@ -76,6 +76,12 @@ class TestMiniexpString:
             assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 4
             assert c_string.value == b'test'
 
+        def test_miniexp_to_lstr_invlid(self) -> None:
+            expr = miniexp.miniexp_number(7)
+            c_string = ctypes.c_char_p()
+            assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 0
+            assert c_string.value is None
+
 
 class TestMiniexpList:
     class TestMiniexpListp:

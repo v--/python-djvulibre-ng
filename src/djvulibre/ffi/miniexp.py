@@ -3,11 +3,12 @@
 An imitation of the miniexp.h API of libdjvulibre using a ctypes FFI.
 """
 # ruff: file-ignore[invalid-class-name]
+# mypy: disable-error-code=empty-body
 
 import ctypes
 import sys
 from enum import IntEnum
-from typing import TYPE_CHECKING, Self, no_type_check
+from typing import TYPE_CHECKING, Self
 
 from .libdjvulibre import libdjvulibre
 
@@ -84,9 +85,9 @@ miniexp_stringp.restype = bool
 
 
 if not TYPE_CHECKING:
-    # ctypes fails to correctly convert to bytes correctly for some reason.
+    # ctypes fails to convert to result to bytes correctly for some reason.
     # The result of the miniexp_concat function produces gibberish when stringified, for example.
-    # Free-threaded builds for Python 3.14 and 3.15 behave correctly, however.
+    # This only affects GIL-enabled Python, however.
     if (is_gil_enabled := getattr(sys, '_is_gil_enabled', None)) is None or is_gil_enabled():
         def miniexp_to_str(p: miniexp_t) -> bytes | None:
             c_string = ctypes.c_char_p()
@@ -110,13 +111,24 @@ if not TYPE_CHECKING:
         miniexp_to_lstr.restype = ctypes.c_int
 else:
     def miniexp_to_str(p: miniexp_t) -> bytes | None:
-        """Get the string of a string miniexp."""
+        """Extract the value of a string miniexp.
 
-    @no_type_check
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            The value of `p` if it is a string miniexp and None otherwise.
+        """
+
     def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
-        """Get the length of a string miniexp, optionally assigning the expression to the second argument.
+        """Get the length and value of a string miniexp.
 
-        Assigns the empty list of the argument is not a string miniexp.
+        Args:
+            p: Any miniexp.
+            sp: A pointer to a C string to assign the value of `p` to. It will be assigned the null pointer if `p` is not a string miniexp.
+
+        Returns:
+            The length of `p` if it is a string miniexp and 0 otherwise.
         """
 
 
@@ -153,7 +165,7 @@ This is a Python implementation of the corresponding header-defined value.
 
 
 miniexp_dummy = miniexp_t.from_address(2)
-"""An invalid expression used to represent various exceptional conditions.
+"""An invalid miniexp used to represent various exceptional conditions.
 
 This is a Python implementation of the corresponding header-defined value.
 """

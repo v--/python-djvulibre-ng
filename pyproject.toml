@@ -20,13 +20,19 @@ lint = [
   "ruff-config-ivasilev @ git+https://github.com/v--/ruff-config-ivasilev.git@v0.16.post1",
 ]
 
-# typing = [
-#   { include-group = "test" },
-#   "mypy (>=2)",
-# ]
+typing = [
+  { include-group = "test" },
+  "mypy (>=2)",
+]
 
 test = [
   "pytest (>=9.0.3)",
+]
+
+docs = [
+  "markdown-exec (>=1.12)",
+  "mkdocstrings-python (>=2)",
+  "zensical (>=0.0.47)",
 ]
 
 dev = [
@@ -34,7 +40,8 @@ dev = [
   "tox (>=4.50)",
 
   { include-group = "lint" },
-  # { include-group = "typing" },
+  { include-group = "typing" },
+  { include-group = "docs" },
   { include-group = "test" },
 ]
 
@@ -59,15 +66,3 @@ ignore = [
 # mypy
 [tool.mypy]
 packages = ["djvulibre"]
-
-[[tool.mypy.overrides]]
-module = [
-  "mesonbuild.*",
-]
-ignore_missing_imports = true
-
-[tool.pytest]
-# This is needed for testing with meson-python
-#   See https://github.com/mesonbuild/meson-python/issues/642
-addopts = ["--import-mode", "importlib"]
-pythonpath = ["src"]
