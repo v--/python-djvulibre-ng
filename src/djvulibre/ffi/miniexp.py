@@ -52,7 +52,7 @@ class MiniExpInternalKind(IntEnum):
 def miniexp_numberp(p: miniexp_t) -> bool:
     """Test if a miniexp is an integer.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     return MiniExpInternalKind.from_miniexp(p) == MiniExpInternalKind.NUMBER
 
@@ -60,7 +60,7 @@ def miniexp_numberp(p: miniexp_t) -> bool:
 def miniexp_to_int(p: miniexp_t) -> int:
     """Get the integer of a miniexp. Returns gibberish for non-number expressions.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     return p.address >> 2
 
@@ -68,7 +68,7 @@ def miniexp_to_int(p: miniexp_t) -> int:
 def miniexp_number(x: int) -> miniexp_t:
     """Construct a miniexp from a number.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     if x > sys.maxsize:
         raise OverflowError(f'The integer {x} is too large')
@@ -89,18 +89,20 @@ def miniexp_to_str(p: miniexp_t) -> bytes | None:
     This is a Python reimplementation of the corresponding C function, which ctypes does not wrap correctly.
     """
     c_string = ctypes.c_char_p()
-    n = miniexp_to_lstr(p, ctypes.pointer(c_string))
-
-    if c_string.value:
-        return c_string.value[0:n]
-
-    return None
+    miniexp_to_lstr(p, ctypes.pointer(c_string))
+    return c_string.value
 
 
-miniexp_to_lstr = libdjvulibre.miniexp_to_lstr
-miniexp_to_lstr.__doc__ = 'Get the length of a string miniexp, optionally assigning the expression to the second argument. Assigns the empty list of the argument is not a string miniexp.'
-miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
-miniexp_to_lstr.restype = ctypes.c_size_t
+def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int | None:
+    """Get the length of a string miniexp, optionally assigning the expression to the second argument. Assigns the empty list of the argument is not a string miniexp."""
+    n = libdjvulibre.miniexp_to_lstr(p, sp)
+
+    # ctypes fails to wrap the conversion to bytes correctly for some reason.
+    # The result of the miniexp_concat function produces gibberish when stringified, for example.
+    if value := sp.contents.value:
+        sp.contents.value = value[:n]
+
+    return n
 
 
 miniexp_string = libdjvulibre.miniexp_string
@@ -145,7 +147,7 @@ This is a Python implementation of the corresponding header-defined value.
 def miniexp_listp(p: miniexp_t) -> bool:
     """Test if a miniexp is either a pair or an empty list.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     return MiniExpInternalKind.from_miniexp(p) == MiniExpInternalKind.LIST
 
@@ -153,7 +155,7 @@ def miniexp_listp(p: miniexp_t) -> bool:
 def miniexp_consp(p: miniexp_t) -> bool:
     """Test if a miniexp is a pair.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     return not p.is_null and miniexp_listp(p)
 
@@ -167,7 +169,7 @@ miniexp_length.restype = ctypes.c_int
 def miniexp_car(p: miniexp_t) -> miniexp_t:
     """Get the first value of a pair. If the argument is not a pair, return the empty list.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     if miniexp_consp(p):
         return miniexp_t.from_address(p.address)
@@ -178,7 +180,7 @@ def miniexp_car(p: miniexp_t) -> miniexp_t:
 def miniexp_cdr(p: miniexp_t) -> miniexp_t:
     """Get the second value of a pair. If the argument is not a pair, return the empty list.
 
-    This is a Python implementation of the corresponding header-defined method.
+    This is a Python implementation of the corresponding header-defined function.
     """
     if miniexp_consp(p):
         return miniexp_t.from_address(p.address + ctypes.alignment(ctypes.c_void_p))
