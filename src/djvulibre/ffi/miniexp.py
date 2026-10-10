@@ -7,7 +7,7 @@ An imitation of the miniexp.h API of libdjvulibre using a ctypes FFI.
 import ctypes
 import sys
 from enum import IntEnum
-from typing import Self
+from typing import TYPE_CHECKING, Self, no_type_check
 
 from .libdjvulibre import libdjvulibre
 
@@ -83,26 +83,41 @@ miniexp_stringp.argtypes = [miniexp_t]
 miniexp_stringp.restype = bool
 
 
-def miniexp_to_str(p: miniexp_t) -> bytes | None:
-    """Get the string of a string miniexp.
-
-    This is a Python reimplementation of the corresponding C function, which ctypes does not wrap correctly.
-    """
-    c_string = ctypes.c_char_p()
-    miniexp_to_lstr(p, ctypes.pointer(c_string))
-    return c_string.value
-
-
-def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int | None:
-    """Get the length of a string miniexp, optionally assigning the expression to the second argument. Assigns the empty list of the argument is not a string miniexp."""
-    n = libdjvulibre.miniexp_to_lstr(p, sp)
-
-    # ctypes fails to wrap the conversion to bytes correctly for some reason.
+if not TYPE_CHECKING:
+    # ctypes fails to correctly convert to bytes correctly for some reason.
     # The result of the miniexp_concat function produces gibberish when stringified, for example.
-    if value := sp.contents.value:
-        sp.contents.value = value[:n]
+    # Free-threaded builds for Python 3.14 and 3.15 behave correctly, however.
+    if (is_gil_enabled := getattr(sys, '_is_gil_enabled', None)) is None or is_gil_enabled():
+        def miniexp_to_str(p: miniexp_t) -> bytes | None:
+            c_string = ctypes.c_char_p()
+            miniexp_to_lstr(p, ctypes.pointer(c_string))
+            return c_string.value
 
-    return n
+        def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
+            n = libdjvulibre.miniexp_to_lstr(p, sp)
+
+            if value := sp.contents.value:
+                sp.contents.value = value[:n]
+
+            return n
+    else:
+        miniexp_to_str = libdjvulibre.miniexp_to_str
+        miniexp_to_str.argtypes = [miniexp_t]
+        miniexp_to_str.restype = ctypes.c_char_p
+
+        miniexp_to_lstr = libdjvulibre.miniexp_to_lstr
+        miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
+        miniexp_to_lstr.restype = ctypes.c_int
+else:
+    def miniexp_to_str(p: miniexp_t) -> bytes | None:
+        """Get the string of a string miniexp."""
+
+    @no_type_check
+    def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
+        """Get the length of a string miniexp, optionally assigning the expression to the second argument.
+
+        Assigns the empty list of the argument is not a string miniexp.
+        """
 
 
 miniexp_string = libdjvulibre.miniexp_string
