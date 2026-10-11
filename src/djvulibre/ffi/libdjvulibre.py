@@ -29,13 +29,13 @@ class LibDjVuLibre:
     cdll: ctypes.CDLL
     """The ctypes wrapper."""
 
-    soversion: int
+    supposed_soversion: int
     """The soversion supposedly loaded.
 
     Realistically, this should be 21.
     """
 
-    api_version: int
+    estimated_api_version: int
     """The C API version determined by inspecting the loaded symbols.
 
     Realistically, this should be 24.
@@ -43,19 +43,19 @@ class LibDjVuLibre:
     Note that the DDJVUAPI_VERSION constant in ddjvuapi.h may mistakenly report the API version as 23 instead of 24.
     """
 
-    def __init__(self, cdll: ctypes.CDLL, soversion: int) -> None:
+    def __init__(self, cdll: ctypes.CDLL, supposed_soversion: int) -> None:
         self.cdll = cdll
-        self.soversion = soversion
+        self.supposed_soversion = supposed_soversion
 
-        if soversion != 21:
-            raise DjVuLibreLibraryLoadError(f'We provide no bindings for libdjvulibre with soversion {soversion}')
+        if supposed_soversion != 21:
+            raise DjVuLibreLibraryLoadError(f'We provide no bindings for libdjvulibre with soversion {supposed_soversion}')
 
         if not getattr(cdll, 'miniexp_to_lstr', None):
             logger.warning(f'No symbol `miniexp_to_lstr` found in dynamic library at {cdll.name}.')
             # Note that DDJVUAPI_VERSION in DjVuLibre v3.5.30.1 is set to 23 even though the heading states that miniexp_to_lstr is added in 24.
             raise DjVuLibreLibraryLoadError(f'Cannot determine API version for {cdll.name}')
 
-        self.api_version = 24
+        self.estimated_api_version = 24
 
 
 def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
