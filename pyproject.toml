@@ -55,6 +55,11 @@ resolution = "lowest-direct"
 module-name = "djvulibre"
 source-include = ["REUSE.toml"]
 
+# These options are helpful for debugging library loading errors
+[tool.pytest]
+log_level = "DEBUG"
+addopts = ['--continue-on-collection-errors']
+
 # ruff
 [tool.ruff]
 extend = ".venv/share/ruff/ruff.ivasilev.toml"

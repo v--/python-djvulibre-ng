@@ -51,9 +51,9 @@ class LibDjVuLibre:
             raise DjVuLibreLibraryLoadError(f'We provide no bindings for libdjvulibre with soversion {supposed_soversion}')
 
         if not getattr(cdll, 'miniexp_to_lstr', None):
-            logger.warning(f'No symbol `miniexp_to_lstr` found in dynamic library at {cdll.name}.')
+            logger.warning(f"No symbol 'miniexp_to_lstr' found in dynamic library at {cdll._name}.")
             # Note that DDJVUAPI_VERSION in DjVuLibre v3.5.30.1 is set to 23 even though the heading states that miniexp_to_lstr is added in 24.
-            raise DjVuLibreLibraryLoadError(f'Cannot determine API version for {cdll.name}')
+            raise DjVuLibreLibraryLoadError(f'Cannot determine API version for {cdll._name}')
 
         self.estimated_api_version = 24
 
@@ -78,7 +78,8 @@ def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
             try:
                 return ctypes.CDLL(lib_name)
             except OSError:
-                logger.warning(f'libdjvulibre with soversion {soversion} not found in standard darwin locations; searching the homebrew lib directory.')
+                logger.debug(f'An exception occurred while loading libdjvulibre with soversion {soversion} from standard darwin locations.', exc_info=True)
+                logger.warning(f'Could not load libdjvulibre with soversion {soversion} from standard darwin locations. Searching the homebrew lib directory.')
                 homebrew_prefix = os.getenv('HOMEBREW_PREFIX')
 
                 if not homebrew_prefix:
@@ -108,24 +109,24 @@ def load_libdjvulibre(soversions: Sequence[int]) -> LibDjVuLibre:
         env_name = f'LIBDJVULIBRE{soversion}'
 
         if env_path := os.getenv(env_name):
-            logger.debug(f'Trying to load libdjvulibre from {env_name}={env_path!r}.')
-
             try:
                 cdll = ctypes.CDLL(env_path)
             except OSError as err:
-                raise DjVuLibreLibraryLoadError(f'Could not load libdjvulibre from variable {env_name}') from err
-
-        try:
-            cdll = _load_libdjvulibre_cdll(soversion)
-        except OSError:
-            logger.warning(f'Could not load libdjvulibre with soversion {soversion}.')
+                logger.debug(f'An exception occurred while loading libdjvulibre from {env_name}={env_path!r}.', exc_info=True)
+                raise DjVuLibreLibraryLoadError(f'Could not load libdjvulibre from path set by {env_name}') from err
         else:
-            break
+            try:
+                cdll = _load_libdjvulibre_cdll(soversion)
+            except OSError:
+                logger.debug(f'An exception occurred while loading libdjvulibre with soversion {soversion}.', exc_info=True)
+                logger.warning(f'Could not load libdjvulibre with soversion {soversion}.')
+            else:
+                break
 
     if cdll:
         return LibDjVuLibre(cdll, soversion)
 
-    raise DjVuLibreLibraryLoadError('Could not find a supported version of libdjvulibre')
+    raise DjVuLibreLibraryLoadError('Could not load a supported version of libdjvulibre')
 
 
 libdjvulibre = load_libdjvulibre(soversions=[21])
