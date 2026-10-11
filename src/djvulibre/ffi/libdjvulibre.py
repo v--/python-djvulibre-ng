@@ -71,8 +71,23 @@ def _load_libdjvulibre_cdll(soname_version: int) ->  ctypes.CDLL:
 
             with importlib.resources.as_file(traversable) as path:
                 return ctypes.CDLL(str(path))
+
         case 'darwin':
-            return ctypes.CDLL(f'libdjvulibre.{soname_version}.dylib')
+            # Homebrew may require some magic
+            #   See https://github.com/astral-sh/uv/issues/7764#issuecomment-3217899208
+            try:
+                return ctypes.CDLL(f'libdjvulibre.{soname_version}.dylib')
+            except OSError:
+                # ruff: ignore[import-outside-top-level]
+                import os.path
+
+                homebrew_prefix = os.getenv('HOMEBREW_PREFIX')
+
+                if not homebrew_prefix:
+                    raise
+
+            return ctypes.CDLL(os.path.join(homebrew_prefix, 'lib', f'libdjvulibre.{soname_version}.dylib'))
+
         case _:
             return ctypes.CDLL(f'libdjvulibre.so.{soname_version}')
 
@@ -98,7 +113,7 @@ def load_libdjvulibre(soname_versions: Sequence[int]) -> LibDjVuLibre:
         else:
             continue
 
-    raise DjVuLibreLibraryLoadError('Could not find supported version of libdjvulibre')
+    raise DjVuLibreLibraryLoadError('Could not find a supported version of libdjvulibre')
 
 
 libdjvulibre = load_libdjvulibre(soname_versions=[21])
