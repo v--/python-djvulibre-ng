@@ -23,17 +23,22 @@ class LibDjVuLibre:
 
     Args:
         cdll: The ctypes wrapper.
-        soversion: The loaded soversion.
+        soversion: The soversion supposedly loaded.
     """
 
     cdll: ctypes.CDLL
     """The ctypes wrapper."""
 
     soversion: int
-    """The soversion supposedly loaded."""
+    """The soversion supposedly loaded.
+
+    Realistically, this should be 21.
+    """
 
     api_version: int
     """The C API version determined by inspecting the loaded symbols.
+
+    Realistically, this should be 24.
 
     Note that the DDJVUAPI_VERSION constant in ddjvuapi.h may mistakenly report the API version as 23 instead of 24.
     """
@@ -57,9 +62,9 @@ def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
     match sys.platform:
         case 'win32':
             # ruff: ignore[import-outside-top-level]
-            from djvulibre_bin import get_latest_available_libdjvulibre_version, get_libdjvulibre_resource
+            from djvulibre_bin import get_latest_available_djvulibre_version, get_libdjvulibre_resource
 
-            djvulibre_version = get_latest_available_libdjvulibre_version(soversion)
+            djvulibre_version = get_latest_available_djvulibre_version(soversion)
             traversable = get_libdjvulibre_resource('windows', platform.machine(), djvulibre_version)
 
             with importlib.resources.as_file(traversable) as path:
@@ -85,11 +90,11 @@ def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
             return ctypes.CDLL(f'libdjvulibre.so.{soversion}')
 
 
-def load_libdjvulibre(soname_versions: Sequence[int]) -> LibDjVuLibre:
+def load_libdjvulibre(soversions: Sequence[int]) -> LibDjVuLibre:
     """Load libdjvulibre for a list of available soversion.
 
     Args:
-        soname_versions: The list of soversions.
+        soversions: The list of soversions.
 
     Returns:
         A ctypes wrapper around the library with version information.
@@ -99,7 +104,7 @@ def load_libdjvulibre(soname_versions: Sequence[int]) -> LibDjVuLibre:
     """
     cdll: ctypes.CDLL | None = None
 
-    for soversion in soname_versions:
+    for soversion in soversions:
         env_name = f'LIBDJVULIBRE{soversion}'
 
         if env_path := os.getenv(env_name):
@@ -123,7 +128,7 @@ def load_libdjvulibre(soname_versions: Sequence[int]) -> LibDjVuLibre:
     raise DjVuLibreLibraryLoadError('Could not find a supported version of libdjvulibre')
 
 
-libdjvulibre = load_libdjvulibre(soname_versions=[21])
+libdjvulibre = load_libdjvulibre(soversions=[21])
 """A ctypes wrapper around libdjvulibre."""
 
 

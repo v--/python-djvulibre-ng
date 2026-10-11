@@ -120,8 +120,8 @@ wheels = [
 
 [[package]]
 name = "djvulibre-bin"
-version = "0.1.1"
-source = { git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.1#6574a2aeb184666e043f727695097b59b39a2f15" }
+version = "0.1.2"
+source = { git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.2#33300e01a1b6c545a2fd35b601bd37ee61e0399b" }
 
 [[package]]
 name = "djvulibre-ng"
@@ -161,7 +161,7 @@ typing = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "djvulibre-bin", marker = "os_name == 'nt'", git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.1" }]
+requires-dist = [{ name = "djvulibre-bin", marker = "os_name == 'nt'", git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.2" }]
 
 [package.metadata.requires-dev]
 dev = [
