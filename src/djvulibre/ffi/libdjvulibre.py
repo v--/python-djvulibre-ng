@@ -17,14 +17,11 @@ def _determine_api_version(cdll: ctypes.CDLL, soname_version: int) -> int:
     if soname_version != 21:
         raise DjVuLibreLibraryLoadError(f'Cannot detect the API version for soname version {soname_version}')
 
-    if getattr(cdll, 'miniexp_lstring', None):
+    if getattr(cdll, 'miniexp_to_lstr', None):
+        # Note that DDJVUAPI_VERSION in DjVuLibre v3.5.30.1 is set to 23 even though the heading states that miniexp_to_lstr is added in 24.
         return 24
 
-    if hasattr(cdll, 'miniexp_mutate'):
-        return 23
-
-    # The changes in version 22 do not affect the C API, so we jump to 21 directly.
-    return 21
+    raise DjVuLibreLibraryLoadError('API versions below 24 are not supported')
 
 
 @dataclass
@@ -61,7 +58,6 @@ class LibDjVuLibre:
             self.api_version = _determine_api_version(cdll, soname_version)
         else:
             self.api_version = api_version
-
 
 
 def _load_libdjvulibre_cdll(soname_version: int) ->  ctypes.CDLL:

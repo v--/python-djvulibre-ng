@@ -94,23 +94,21 @@ if not TYPE_CHECKING:
             miniexp_to_lstr(p, ctypes.pointer(c_string))
             return c_string.value
 
-        if libdjvulibre.api_version >= 24:
-            def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
-                n = libdjvulibre.cdll.miniexp_to_lstr(p, sp)
+        def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
+            n = libdjvulibre.cdll.miniexp_to_lstr(p, sp)
 
-                if value := sp.contents.value:
-                    sp.contents.value = value[:n]
+            if value := sp.contents.value:
+                sp.contents.value = value[:n]
 
-                return n
+            return n
     else:
         miniexp_to_str = libdjvulibre.cdll.miniexp_to_str
         miniexp_to_str.argtypes = [miniexp_t]
         miniexp_to_str.restype = ctypes.c_char_p
 
-        if libdjvulibre.api_version >= 24:
-            miniexp_to_lstr = libdjvulibre.cdll.miniexp_to_lstr
-            miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
-            miniexp_to_lstr.restype = ctypes.c_int
+        miniexp_to_lstr = libdjvulibre.cdll.miniexp_to_lstr
+        miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
+        miniexp_to_lstr.restype = ctypes.c_int
 else:
     def miniexp_to_str(p: miniexp_t) -> bytes | None:
         """Extract the value of a string miniexp.
@@ -141,10 +139,9 @@ miniexp_string.restype = miniexp_t
 
 
 if not TYPE_CHECKING:
-    if libdjvulibre.api_version >= 24:
-        miniexp_lstring = libdjvulibre.cdll.miniexp_lstring
-        miniexp_lstring.argtypes = [ctypes.c_size_t, ctypes.c_char_p]
-        miniexp_lstring.restype = miniexp_t
+    miniexp_lstring = libdjvulibre.cdll.miniexp_lstring
+    miniexp_lstring.argtypes = [ctypes.c_size_t, ctypes.c_char_p]
+    miniexp_lstring.restype = miniexp_t
 else:
     # ruff: ignore[builtin-argument-shadowing]
     def miniexp_lstring(len: int, p: bytes) -> miniexp_t:
