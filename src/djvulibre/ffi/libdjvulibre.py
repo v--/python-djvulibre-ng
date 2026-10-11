@@ -5,12 +5,66 @@ import ctypes
 import importlib
 import platform
 import sys
+from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .exceptions import DjvuLibreLibraryLoadError
+from .exceptions import DjVuLibreLibraryLoadError
 
 
-def _load_libdjvulibre_impl(soname_version: int) ->  ctypes.CDLL:
+# We try to determine the API version based on the changelog of symbol changes between API versions in miniexp.h
+def _determine_api_version(cdll: ctypes.CDLL, soname_version: int) -> int:
+    if soname_version != 21:
+        raise DjVuLibreLibraryLoadError(f'Cannot detect the API version for soname version {soname_version}')
+
+    if getattr(cdll, 'miniexp_lstring', None):
+        return 24
+
+    if hasattr(cdll, 'miniexp_mutate'):
+        return 23
+
+    # The changes in version 22 do not affect the C API, so we jump to 21 directly.
+    return 21
+
+
+@dataclass
+class LibDjVuLibre:
+    """A ctypes wrapper around libdjvulibre with versions attached.
+
+    Args:
+        cdll: The ctypes wrapper.
+        soname_version: The loaded soname version.
+        api_version: The loaded C API version.
+            If not specified, so we try to determine it based on the symbol available.
+
+    Raises:
+        DjVuLibreLibraryLoadError: If detecting the API version fails.
+    """
+
+    cdll: ctypes.CDLL
+    """The ctypes wrapper."""
+
+    soname_version: int
+    """The loaded soname version."""
+
+    api_version: int
+    """The loaded C API version.
+
+    Note that the DDJVUAPI_VERSION constant in ddjvuapi.h mistakenly reports the API version as 23 instead of 24.
+    """
+
+    def __init__(self, cdll: ctypes.CDLL, soname_version: int, api_version: int | None = None) -> None:
+        self.cdll = cdll
+        self.soname_version = soname_version
+
+        if api_version is None:
+            self.api_version = _determine_api_version(cdll, soname_version)
+        else:
+            self.api_version = api_version
+
+
+
+def _load_libdjvulibre_cdll(soname_version: int) ->  ctypes.CDLL:
     match sys.platform:
         case 'win32':
             # ruff: ignore[import-outside-top-level]
@@ -27,30 +81,36 @@ def _load_libdjvulibre_impl(soname_version: int) ->  ctypes.CDLL:
             return ctypes.CDLL(f'libdjvulibre.so.{soname_version}')
 
 
-def load_libdjvulibre(soname_version: int) ->  ctypes.CDLL:
-    """Load libdjvulibre for a given C API version.
+def load_libdjvulibre(soname_versions: Sequence[int]) -> LibDjVuLibre:
+    """Load libdjvulibre for a list of available soname version.
 
     Args:
-        soname_version: The C API ("soname") version.
+        soname_versions: The list of soname versions.
 
     Returns:
-        A ctypes wrapper around the library.
+        A ctypes wrapper around the library with version information.
 
     Raises:
-        OSError: If loading fails.
+        DjVuLibreLibraryLoadError: If loading all given versions fails.
     """
-    try:
-        return _load_libdjvulibre_impl(soname_version)
-    except OSError as err:
-        raise DjvuLibreLibraryLoadError('Could not find a supported version of libdjvulibre') from err
+    for soname_version in soname_versions:
+        try:
+            cdll = _load_libdjvulibre_cdll(soname_version)
+            return LibDjVuLibre(cdll, soname_version)
+        except OSError:
+            pass
+        else:
+            continue
+
+    raise DjVuLibreLibraryLoadError('Could not find supported version of libdjvulibre')
 
 
-libdjvulibre = load_libdjvulibre(soname_version=21)
+libdjvulibre = load_libdjvulibre(soname_versions=[21])
 """A ctypes wrapper around libdjvulibre."""
 
 
 if not TYPE_CHECKING:
-    ddjvu_get_version_string = libdjvulibre.ddjvu_get_version_string
+    ddjvu_get_version_string = libdjvulibre.cdll.ddjvu_get_version_string
     ddjvu_get_version_string.argtypes = []
     ddjvu_get_version_string.restype = ctypes.c_char_p
 else:

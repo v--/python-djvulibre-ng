@@ -2,6 +2,8 @@ import ctypes
 
 import pytest
 
+from djvulibre.ffi.libdjvulibre import libdjvulibre
+
 from . import miniexp
 
 
@@ -29,11 +31,13 @@ class TestMiniexpString:
             assert miniexp.miniexp_stringp(expr)
             assert miniexp.miniexp_to_str(expr) == b'test'
 
+        @pytest.mark.skipif(libdjvulibre.api_version < 24, reason='`miniexp_lstring` is not available')
         def test_miniexp_lstring_length_in_bounds(self) -> None:
             expr = miniexp.miniexp_lstring(3, b'test')
             assert miniexp.miniexp_stringp(expr)
             assert miniexp.miniexp_to_str(expr) == b'tes'
 
+        @pytest.mark.skipif(libdjvulibre.api_version < 24, reason='`miniexp_lstring` is not available')
         def test_miniexp_lstring_length_outside_bounds(self) -> None:
             expr = miniexp.miniexp_lstring(5, b'test')
             assert miniexp.miniexp_stringp(expr)
@@ -70,12 +74,14 @@ class TestMiniexpString:
             assert miniexp.miniexp_to_str(combined) == b'ab'
 
     class TestMiniexpStringMisc:
+        @pytest.mark.skipif(libdjvulibre.api_version < 24, reason='`miniexp_to_lstr` is not available')
         def test_miniexp_to_lstr(self) -> None:
             expr = miniexp.miniexp_string(b'test')
             c_string = ctypes.c_char_p()
             assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 4
             assert c_string.value == b'test'
 
+        @pytest.mark.skipif(libdjvulibre.api_version < 24, reason='`miniexp_to_lstr` is not available')
         def test_miniexp_to_lstr_invlid(self) -> None:
             expr = miniexp.miniexp_number(7)
             c_string = ctypes.c_char_p()

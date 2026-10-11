@@ -1,6 +1,6 @@
-class DjvuLibreException(Exception):
+class DjVuLibreException(Exception):
     pass
 
 
-class DjvuLibreError(DjvuLibreException):
+class DjVuLibreError(DjVuLibreException):
     pass

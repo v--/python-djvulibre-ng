@@ -1,9 +1,9 @@
-from djvulibre.exceptions import DjvuLibreError
+from djvulibre.exceptions import DjVuLibreError
 
 
-class DjvuLibreFFIError(DjvuLibreError):
+class DjVuLibreFFIError(DjVuLibreError):
     pass
 
 
-class DjvuLibreLibraryLoadError(DjvuLibreFFIError):
+class DjVuLibreLibraryLoadError(DjVuLibreFFIError):
     pass
