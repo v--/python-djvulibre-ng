@@ -5,7 +5,6 @@ import ctypes
 import importlib
 import logging
 import os.path
-import platform
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -61,13 +60,16 @@ class LibDjVuLibre:
 def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
     match sys.platform:
         case 'win32':
-            # ruff: ignore[import-outside-top-level]
-            from djvulibre_bin import get_latest_available_djvulibre_version, get_libdjvulibre_resource
+            try:
+                # ruff: ignore[import-outside-top-level]
+                from djvulibre_bin import LIBDJVULIBRE_RESOURCE_DIRECTORY, LIBDJVULIBRE_VERSION
+            except ImportError as err:
+                raise DjVuLibreLibraryLoadError('Cannot load the djvulibre_bin Python package that contains libdjvulibre.dll') from err
 
-            djvulibre_version = get_latest_available_djvulibre_version(soversion)
-            traversable = get_libdjvulibre_resource('windows', platform.machine(), djvulibre_version)
+            if not (soversion == 21 and LIBDJVULIBRE_VERSION.startswith('3.5.')):
+                logger.warning(f'Possible mismatch between requested libdjvulibre soversion {soversion} and DjVuLibre version {LIBDJVULIBRE_VERSION} from djvulibre_bin')
 
-            with importlib.resources.as_file(traversable) as path:
+            with importlib.resources.as_file(LIBDJVULIBRE_RESOURCE_DIRECTORY / 'libdjvulibre') as path:
                 return ctypes.CDLL(str(path))
 
         case 'darwin':
