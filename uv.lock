@@ -120,15 +120,18 @@ wheels = [
 
 [[package]]
 name = "djvulibre-bin"
-version = "0.1.3"
-source = { git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.3#fad70bc32db0b0894c2ead9313c3366b99dd4525" }
+version = "3.5.30.1.post1"
+source = { url = "https://github.com/v--/djvulibre-bin/raw/refs/heads/master/dist/djvulibre_bin-3.5.30.1.post1-py3-none-win_amd64.whl" }
+wheels = [
+    { url = "https://github.com/v--/djvulibre-bin/raw/refs/heads/master/dist/djvulibre_bin-3.5.30.1.post1-py3-none-win_amd64.whl", hash = "sha256:ca256b416fe59f080149fe434e72de972561d3964577a70dd577a5e6a45a000b" },
+]
 
 [[package]]
 name = "djvulibre-ng"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "djvulibre-bin", marker = "os_name == 'nt'" },
+    { name = "djvulibre-bin", marker = "platform_machine == 'AMD64' and sys_platform == 'win32'" },
 ]
 
 [package.dev-dependencies]
@@ -161,7 +164,7 @@ typing = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "djvulibre-bin", marker = "os_name == 'nt'", git = "https://github.com/v--/djvulibre-bin.git?rev=v0.1.3" }]
+requires-dist = [{ name = "djvulibre-bin", marker = "platform_machine == 'AMD64' and sys_platform == 'win32'", url = "https://github.com/v--/djvulibre-bin/raw/refs/heads/master/dist/djvulibre_bin-3.5.30.1.post1-py3-none-win_amd64.whl" }]
 
 [package.metadata.requires-dev]
 dev = [

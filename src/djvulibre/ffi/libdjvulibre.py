@@ -5,13 +5,12 @@ import ctypes
 import importlib
 import logging
 import os.path
-import platform
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .exceptions import DjVuLibreLibraryLoadError
+from .exceptions import DjVuLibreLibraryLoadError, DjVuLibreVersionMismatchError
 
 
 logger = logging.getLogger(__name__)
@@ -61,13 +60,16 @@ class LibDjVuLibre:
 def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
     match sys.platform:
         case 'win32':
-            # ruff: ignore[import-outside-top-level]
-            from djvulibre_bin import get_latest_available_djvulibre_version, get_libdjvulibre_resource
+            try:
+                # ruff: ignore[import-outside-top-level]
+                from djvulibre_bin import LIBDJVULIBRE_RESOURCE_DIRECTORY, LIBDJVULIBRE_SOVERSION
+            except ImportError as err:
+                raise DjVuLibreLibraryLoadError('Cannot load the `djvulibre_bin` Python package that contains `libdjvulibre.dll`') from err
 
-            djvulibre_version = get_latest_available_djvulibre_version(soversion)
-            traversable = get_libdjvulibre_resource('windows', platform.machine(), djvulibre_version)
+            if soversion != LIBDJVULIBRE_SOVERSION:
+                raise DjVuLibreVersionMismatchError(f'Requested soversion {soversion} from `djvulibre_bin`, but {LIBDJVULIBRE_SOVERSION} is provided.')
 
-            with importlib.resources.as_file(traversable) as path:
+            with importlib.resources.as_file(LIBDJVULIBRE_RESOURCE_DIRECTORY / 'libdjvulibre') as path:
                 return ctypes.CDLL(str(path))
 
         case 'darwin':
@@ -117,7 +119,7 @@ def load_libdjvulibre(soversions: Sequence[int]) -> LibDjVuLibre:
         else:
             try:
                 cdll = _load_libdjvulibre_cdll(soversion)
-            except OSError:
+            except (OSError, DjVuLibreVersionMismatchError):
                 logger.debug(f'An exception occurred while loading libdjvulibre with soversion {soversion}.', exc_info=True)
                 logger.warning(f'Could not load libdjvulibre with soversion {soversion}.')
             else:

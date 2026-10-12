@@ -7,3 +7,7 @@ class DjVuLibreFFIError(DjVuLibreError):
 
 class DjVuLibreLibraryLoadError(DjVuLibreFFIError):
     pass
+
+
+class DjVuLibreVersionMismatchError(DjVuLibreFFIError):
+    pass
