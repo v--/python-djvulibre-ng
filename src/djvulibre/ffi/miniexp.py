@@ -95,6 +95,53 @@ def miniexp_number(x: int) -> miniexp_t:
     return miniexp_t(x << 2 | 3)
 
 
+# Symbols
+def miniexp_symbolp(p: miniexp_t) -> bool:
+    """Test if a miniexp is a symbol expression.
+
+    This is a Python implementation of the corresponding header-defined function.
+
+    Args:
+        p: Any miniexp.
+
+    Returns:
+        Whether `p` is a symbol expression.
+    """
+    return MiniExpInternalKind.from_miniexp(p) == MiniExpInternalKind.SYMBOL
+
+
+if not TYPE_CHECKING:
+    miniexp_to_name = libdjvulibre.cdll.miniexp_to_name
+    miniexp_to_name.argtypes = [miniexp_t]
+    miniexp_to_name.restype = ctypes.c_char_p
+else:
+    def miniexp_to_name(p: miniexp_t) -> bytes | None:
+        """Extract the value of a symbol miniexp.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            The value of `p` if it is a symbol miniexp and None otherwise.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_symbol = libdjvulibre.cdll.miniexp_symbol
+    miniexp_symbol.argtypes = [ctypes.c_char_p]
+    miniexp_symbol.restype = miniexp_t
+else:
+    def miniexp_symbol(name: bytes) -> miniexp_t:
+        """Get the unique symbol miniexp with a given name.
+
+        Args:
+            name: Any string.
+
+        Returns:
+            A symbol miniexp.
+        """
+
+
 # Strings
 if not TYPE_CHECKING:
     miniexp_stringp = libdjvulibre.cdll.miniexp_stringp

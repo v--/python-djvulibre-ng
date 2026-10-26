@@ -22,6 +22,13 @@ class TestMiniexpNumber:
             miniexp.miniexp_number(2 ** 64)
 
 
+class TestMiniexpSymbol:
+    def test_miniexp_symbol(self) -> None:
+        expr = miniexp.miniexp_symbol(b'test')
+        assert miniexp.miniexp_symbolp(expr)
+        assert miniexp.miniexp_to_name(expr) == b'test'
+
+
 class TestMiniexpString:
     class TestMiniexpStringCreation:
         def test_miniexp_string(self) -> None:
