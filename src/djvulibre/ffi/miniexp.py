@@ -416,6 +416,53 @@ else:
         """
 
 
+def miniexp_objectp(p: miniexp_t) -> bool:
+    """Test if a miniexp is an object.
+
+    This is a Python implementation of the corresponding header-defined function.
+
+    Args:
+        p: Any miniexp.
+
+    Returns:
+        Whether `p` is an object.
+    """
+    return MiniExpInternalKind.from_miniexp(p) == MiniExpInternalKind.OBJECT
+
+
+if not TYPE_CHECKING:
+    miniexp_classof = libdjvulibre.cdll.miniexp_classof
+    miniexp_classof.argtypes = [miniexp_t]
+    miniexp_classof.restype = miniexp_t
+else:
+    def miniexp_classof(p: miniexp_t) -> miniexp_t:
+        """Get the symbolic class of a miniexp.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            A symbol miniexp with the class of `p` if it is an object and the empty list otherwise.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_isa = libdjvulibre.cdll.miniexp_isa
+    miniexp_isa.argtypes = [miniexp_t, miniexp_t]
+    miniexp_isa.restype = miniexp_t
+else:
+    def miniexp_isa(p: miniexp_t, c: miniexp_t) -> miniexp_t:
+        """Determine whether an object miniexp is an instance of (a subclass of) a class.
+
+        Args:
+            p: Any miniexp.
+            c: A symbol miniexp with a class name.
+
+        Returns:
+            A symbol miniexp with the actual class name of `p` if it is an instance of `c` and the empty list otherwise.
+        """
+
+
 # Strings
 if not TYPE_CHECKING:
     miniexp_stringp = libdjvulibre.cdll.miniexp_stringp

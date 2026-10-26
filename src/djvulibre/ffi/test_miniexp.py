@@ -23,7 +23,7 @@ class TestMiniexpNumber:
 
 
 class TestMiniexpSymbol:
-    def test_miniexp_symbol(self) -> None:
+    def test_miniexp_to_name(self) -> None:
         expr = miniexp.miniexp_symbol(b'test')
         assert miniexp.miniexp_symbolp(expr)
         assert miniexp.miniexp_to_name(expr) == b'test'
@@ -159,6 +159,26 @@ class TestMiniexpList:
             assert miniexp.miniexp_nth(0, reversed_) == c
             assert miniexp.miniexp_nth(1, reversed_) == b
             assert miniexp.miniexp_nth(2, reversed_) == a
+
+
+class TestMiniexpObject:
+    def test_miniexp_classof_number(self) -> None:
+        expr = miniexp.miniexp_number(7)
+        assert miniexp.miniexp_classof(expr) == miniexp.miniexp_nil
+
+    def test_miniexp_classof_string(self) -> None:
+        expr = miniexp.miniexp_string(b'test')
+        assert miniexp.miniexp_to_name(miniexp.miniexp_classof(expr)) == b'string'
+
+    def test_miniexp_isa_string_failure(self) -> None:
+        expr = miniexp.miniexp_number(7)
+        class_expr = miniexp.miniexp_symbol(b'string')
+        assert miniexp.miniexp_isa(expr, class_expr) == miniexp.miniexp_nil
+
+    def test_miniexp_isa_string_success(self) -> None:
+        expr = miniexp.miniexp_string(b'string')
+        class_expr = miniexp.miniexp_symbol(b'string')
+        assert miniexp.miniexp_to_name(miniexp.miniexp_isa(expr, class_expr)) == b'string'
 
 
 class TestMiniexpString:
