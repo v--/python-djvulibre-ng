@@ -13,6 +13,10 @@ Goals:
 * Tests with public domain books (generating test data for specific cases turns out to be more difficult).
 * I plan to use `GPL-2.0-or-later`, like DjVuLibre itself, compared to `GPL-2.0-only` for [python-djvulibre](https://github.com/jwilk-archive/python-djvulibre) (the reason why I started this project from scratch instead of contributing).
 
+## ctypes
+
+The individual function bindings will improve in Python 3.16 (see [change summary](https://docs.python.org/3.16/whatsnew/3.16.html#ctypes)), but we have a few years until then. Hopefully we will see _some_ backports sooner.
+
 ## Prerequisites
 
 On UNIX systems, we rely on `djvulibre` being installed and discoverable. On Windows, due to the lack of [RPATH](https://en.wikipedia.org/wiki/Rpath) support (see the `meson-python` docs [here](https://mesonbuild.com/meson-python/how-to-guides/shared-libraries.html)), we include `djvulibre` itself as a submodule (for extracting header files) and [`djvulibre-bin`](https://github.com/v--/djvulibre-bin) with precompiled Windows libraries get embedded in the wheel file.

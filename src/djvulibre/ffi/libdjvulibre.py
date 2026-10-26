@@ -1,7 +1,6 @@
 """A module for locating and loading libdjvulibre."""
 # mypy: disable-error-code=empty-body
 
-import ctypes
 import importlib
 import logging
 import os.path
@@ -10,7 +9,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .exceptions import DjVuLibreLibraryLoadError
+from .exceptions import DjVuLibreCtypesError, DjVuLibreLibraryLoadError
+
+
+try:
+    import ctypes
+except ImportError as err:
+    raise DjVuLibreCtypesError('Could not load the ctypes module') from err
 
 
 logger = logging.getLogger(__name__)
