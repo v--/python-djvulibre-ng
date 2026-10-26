@@ -240,3 +240,30 @@ class TestMiniexpString:
             c_string = ctypes.c_char_p()
             assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 0
             assert c_string.value is None
+
+
+class TestMiniexpFloatnum:
+    # ruff: disable[float-equality-comparison]
+    def test_miniexp_floatnum(self) -> None:
+        expr = miniexp.miniexp_floatnum(7.7)
+        assert miniexp.miniexp_floatnump(expr)
+        assert miniexp.miniexp_to_double(expr) == 7.7
+
+    def test_miniexp_floatnum_zero(self) -> None:
+        # Ensure that no null pointer mess happens here.
+        expr = miniexp.miniexp_floatnum(0.0)
+        assert miniexp.miniexp_floatnump(expr)
+        assert miniexp.miniexp_to_double(expr) == 0.0
+
+    def test_miniexp_to_double_invalid(self) -> None:
+        # Ensure that no null pointer mess happens here.
+        expr = miniexp.miniexp_string(b'test')
+        assert not miniexp.miniexp_doublep(expr)
+        assert miniexp.miniexp_to_double(expr) == 0.0
+
+    def test_miniexp_to_double_integer(self) -> None:
+        expr = miniexp.miniexp_number(3)
+        assert not miniexp.miniexp_floatnump(expr)
+        assert miniexp.miniexp_doublep(expr)
+        assert miniexp.miniexp_to_double(expr) == 3
+    # ruff: enable[float-equality-comparison]

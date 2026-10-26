@@ -79,7 +79,7 @@ def miniexp_to_int(p: miniexp_t) -> int:
 
 
 def miniexp_number(x: int) -> miniexp_t:
-    """Construct a miniexp from an integer.
+    """Construct a number miniexp from an integer.
 
     This is a Python implementation of the corresponding header-defined function.
 
@@ -350,7 +350,6 @@ else:
 
 if not TYPE_CHECKING:
     miniexp_cons = libdjvulibre.cdll.miniexp_cons
-    miniexp_cons.__doc__ = 'Construct a pair miniexp.'
     miniexp_cons.argtypes = [miniexp_t, miniexp_t]
     miniexp_cons.restype = miniexp_t
 else:
@@ -601,4 +600,69 @@ else:
 
         Returns:
             The concatenated string. If the argument is a cyclic list, return the empty list.
+        """
+
+
+# Floats
+if not TYPE_CHECKING:
+    miniexp_floatnump = libdjvulibre.cdll.miniexp_floatnump
+    miniexp_floatnump.argtypes = [miniexp_t]
+    miniexp_floatnump.restype = bool
+else:
+    def miniexp_floatnump(p: miniexp_t) -> bool:
+        """Test if a miniexp is a floatnum expression.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            Whether `p` is a floatnum expression.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_floatnum = libdjvulibre.cdll.miniexp_floatnum
+    miniexp_floatnum.argtypes = [ctypes.c_double]
+    miniexp_floatnum.restype = miniexp_t
+else:
+    def miniexp_floatnum(x: float) -> miniexp_t:
+        """Construct a floatnum miniexp.
+
+        Args:
+            x: Any double-precision floating-point number.
+
+        Returns:
+            A floatnum miniexp.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_doublep = libdjvulibre.cdll.miniexp_doublep
+    miniexp_doublep.argtypes = [miniexp_t]
+    miniexp_doublep.restype = bool
+else:
+    def miniexp_doublep(p: miniexp_t) -> float:
+        """Test if a miniexp encodes a a double-precision floating-point number.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            Whether `p` is a floatnum or number miniexp.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_to_double = libdjvulibre.cdll.miniexp_to_double
+    miniexp_to_double.argtypes = [miniexp_t]
+    miniexp_to_double.restype = ctypes.c_double
+else:
+    def miniexp_to_double(p: miniexp_t) -> float:
+        """Get the value of a floatnum or number miniexp.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            A double-precision floating-point number if `p` is a floatnum and 0.0 otherwise.
         """
