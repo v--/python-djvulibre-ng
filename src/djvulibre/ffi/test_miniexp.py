@@ -29,67 +29,6 @@ class TestMiniexpSymbol:
         assert miniexp.miniexp_to_name(expr) == b'test'
 
 
-class TestMiniexpString:
-    class TestMiniexpStringCreation:
-        def test_miniexp_string(self) -> None:
-            expr = miniexp.miniexp_string(b'test')
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b'test'
-
-        def test_miniexp_lstring_length_in_bounds(self) -> None:
-            expr = miniexp.miniexp_lstring(3, b'test')
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b'tes'
-
-        def test_miniexp_lstring_length_outside_bounds(self) -> None:
-            expr = miniexp.miniexp_lstring(5, b'test')
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b'test'
-
-        def test_miniexp_substring_length_in_bounds(self) -> None:
-            expr = miniexp.miniexp_substring(b'test', 3)
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b'tes'
-
-        def test_miniexp_substring_length_outside_bounds(self) -> None:
-            expr = miniexp.miniexp_substring(b'test', 5)
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b'test'
-
-    class TestMiniexpStringConcat:
-        def test_miniexp_concat_empty_list(self) -> None:
-            expr = miniexp.miniexp_concat(miniexp.miniexp_nil)
-            assert miniexp.miniexp_stringp(expr)
-            assert miniexp.miniexp_to_str(expr) == b''
-
-        def test_miniexp_concat_cyclic_list(self) -> None:
-            expr = miniexp.miniexp_cons(miniexp.miniexp_nil, miniexp.miniexp_nil)
-            miniexp.miniexp_rplacd(expr, expr)
-            assert miniexp.miniexp_concat(expr) == miniexp.miniexp_nil
-
-        def test_miniexp_concat_two_element_list(self) -> None:
-            a = miniexp.miniexp_string(b'a')
-            b = miniexp.miniexp_string(b'b')
-            lst = miniexp.miniexp_cons(a, miniexp.miniexp_cons(b, miniexp.miniexp_nil))
-            combined = miniexp.miniexp_concat(lst)
-
-            assert miniexp.miniexp_stringp(combined)
-            assert miniexp.miniexp_to_str(combined) == b'ab'
-
-    class TestMiniexpStringMisc:
-        def test_miniexp_to_lstr(self) -> None:
-            expr = miniexp.miniexp_string(b'test')
-            c_string = ctypes.c_char_p()
-            assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 4
-            assert c_string.value == b'test'
-
-        def test_miniexp_to_lstr_invlid(self) -> None:
-            expr = miniexp.miniexp_number(7)
-            c_string = ctypes.c_char_p()
-            assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 0
-            assert c_string.value is None
-
-
 class TestMiniexpList:
     class TestMiniexpListp:
         def test_miniexp_listp_empty(self) -> None:
@@ -220,3 +159,64 @@ class TestMiniexpList:
             assert miniexp.miniexp_nth(0, reversed_) == c
             assert miniexp.miniexp_nth(1, reversed_) == b
             assert miniexp.miniexp_nth(2, reversed_) == a
+
+
+class TestMiniexpString:
+    class TestMiniexpStringCreation:
+        def test_miniexp_string(self) -> None:
+            expr = miniexp.miniexp_string(b'test')
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b'test'
+
+        def test_miniexp_lstring_length_in_bounds(self) -> None:
+            expr = miniexp.miniexp_lstring(3, b'test')
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b'tes'
+
+        def test_miniexp_lstring_length_outside_bounds(self) -> None:
+            expr = miniexp.miniexp_lstring(5, b'test')
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b'test'
+
+        def test_miniexp_substring_length_in_bounds(self) -> None:
+            expr = miniexp.miniexp_substring(b'test', 3)
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b'tes'
+
+        def test_miniexp_substring_length_outside_bounds(self) -> None:
+            expr = miniexp.miniexp_substring(b'test', 5)
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b'test'
+
+    class TestMiniexpStringConcat:
+        def test_miniexp_concat_empty_list(self) -> None:
+            expr = miniexp.miniexp_concat(miniexp.miniexp_nil)
+            assert miniexp.miniexp_stringp(expr)
+            assert miniexp.miniexp_to_str(expr) == b''
+
+        def test_miniexp_concat_cyclic_list(self) -> None:
+            expr = miniexp.miniexp_cons(miniexp.miniexp_nil, miniexp.miniexp_nil)
+            miniexp.miniexp_rplacd(expr, expr)
+            assert miniexp.miniexp_concat(expr) == miniexp.miniexp_nil
+
+        def test_miniexp_concat_two_element_list(self) -> None:
+            a = miniexp.miniexp_string(b'a')
+            b = miniexp.miniexp_string(b'b')
+            lst = miniexp.miniexp_cons(a, miniexp.miniexp_cons(b, miniexp.miniexp_nil))
+            combined = miniexp.miniexp_concat(lst)
+
+            assert miniexp.miniexp_stringp(combined)
+            assert miniexp.miniexp_to_str(combined) == b'ab'
+
+    class TestMiniexpStringMisc:
+        def test_miniexp_to_lstr(self) -> None:
+            expr = miniexp.miniexp_string(b'test')
+            c_string = ctypes.c_char_p()
+            assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 4
+            assert c_string.value == b'test'
+
+        def test_miniexp_to_lstr_invlid(self) -> None:
+            expr = miniexp.miniexp_number(7)
+            c_string = ctypes.c_char_p()
+            assert miniexp.miniexp_to_lstr(expr, ctypes.pointer(c_string)) == 0
+            assert c_string.value is None

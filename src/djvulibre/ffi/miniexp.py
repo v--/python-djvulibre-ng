@@ -142,147 +142,6 @@ else:
         """
 
 
-# Strings
-if not TYPE_CHECKING:
-    miniexp_stringp = libdjvulibre.cdll.miniexp_stringp
-    miniexp_stringp.argtypes = [miniexp_t]
-    miniexp_stringp.restype = bool
-else:
-    def miniexp_stringp(p: miniexp_t) -> bool:
-        """Test if a miniexp is a string expression.
-
-        Args:
-            p: Any miniexp.
-
-        Returns:
-            Whether `p` is a string expression.
-        """
-
-
-if not TYPE_CHECKING:
-    # ctypes fails to convert to result to bytes correctly for some reason.
-    # The result of the miniexp_concat function produces gibberish when stringified, for example.
-    # This only affects GIL-enabled Python, however.
-    if (is_gil_enabled := getattr(sys, '_is_gil_enabled', None)) is None or is_gil_enabled():
-        def miniexp_to_str(p: miniexp_t) -> bytes | None:
-            c_string = ctypes.c_char_p()
-            miniexp_to_lstr(p, ctypes.pointer(c_string))
-            return c_string.value
-
-        def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
-            n = libdjvulibre.cdll.miniexp_to_lstr(p, sp)
-
-            if value := sp.contents.value:
-                sp.contents.value = value[:n]
-
-            return n
-    else:
-        miniexp_to_str = libdjvulibre.cdll.miniexp_to_str
-        miniexp_to_str.argtypes = [miniexp_t]
-        miniexp_to_str.restype = ctypes.c_char_p
-
-        miniexp_to_lstr = libdjvulibre.cdll.miniexp_to_lstr
-        miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
-        miniexp_to_lstr.restype = ctypes.c_int
-else:
-    def miniexp_to_str(p: miniexp_t) -> bytes | None:
-        """Extract the value of a string miniexp.
-
-        Due to a memory alignment issue, a Python implementation is used when the GIL is enabled.
-
-        Args:
-            p: Any miniexp.
-
-        Returns:
-            The value of `p` if it is a string miniexp and None otherwise.
-        """
-
-    def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
-        """Get the length and value of a string miniexp.
-
-        Due to a memory alignment issue, a Python implementation is used when the GIL is enabled.
-
-        Args:
-            p: Any miniexp.
-            sp: A pointer to a C string to assign the value of `p` to. It will be assigned the null pointer if `p` is not a string miniexp.
-
-        Returns:
-            The length of `p` if it is a string miniexp and 0 otherwise.
-        """
-
-
-if not TYPE_CHECKING:
-    miniexp_string = libdjvulibre.cdll.miniexp_string
-    miniexp_string.argtypes = [ctypes.c_char_p]
-    miniexp_string.restype = miniexp_t
-else:
-    def miniexp_string(p: bytes) -> miniexp_t:
-        """Construct a string expression from a string.
-
-        Args:
-            p: The string to use.
-
-        Returns:
-            A string miniexp.
-        """
-
-
-if not TYPE_CHECKING:
-    miniexp_lstring = libdjvulibre.cdll.miniexp_lstring
-    miniexp_lstring.argtypes = [ctypes.c_size_t, ctypes.c_char_p]
-    miniexp_lstring.restype = miniexp_t
-else:
-    # ruff: ignore[builtin-argument-shadowing]
-    def miniexp_lstring(len: int, p: bytes) -> miniexp_t:
-        """Construct a miniexp by copying the first n bytes of a string.
-
-        The same as miniexp_substring from the perspective of the Python FFI.
-
-        Args:
-            len: The number of bytes.
-            p: The byte encoding of a string.
-
-        Returns:
-            A string miniexp.
-        """
-
-
-if not TYPE_CHECKING:
-    miniexp_substring = libdjvulibre.cdll.miniexp_substring
-    miniexp_substring.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
-    miniexp_substring.restype = miniexp_t
-else:
-    # ruff: ignore[builtin-argument-shadowing]
-    def miniexp_substring(p: bytes, len: int) -> miniexp_t:
-        """Construct a miniexp by copying at most n bytes of a string.
-
-        The same as miniexp_lstring from the perspective of the Python FFI.
-
-        Args:
-            len: The number of bytes.
-            p: The byte encoding of a string.
-
-        Returns:
-            A string miniexp.
-        """
-
-
-if not TYPE_CHECKING:
-    miniexp_concat = libdjvulibre.cdll.miniexp_concat
-    miniexp_concat.argtypes = [miniexp_t]
-    miniexp_concat.restype = miniexp_t
-else:
-    def miniexp_concat(l: miniexp_t) -> miniexp_t:
-        """Concatenate all direct string subexpressions in a list into a single string miniexp.
-
-        Args:
-            l: The list miniexp to concatenate.
-
-        Returns:
-            The concatenated string. If the argument is a cyclic list, return the empty list.
-        """
-
-
 # Lists
 miniexp_nil = miniexp_t()
 """An empty miniexp list.
@@ -554,4 +413,145 @@ else:
 
         Returns:
             The reverse of `p` if it is a list and the empty list otherwise.
+        """
+
+
+# Strings
+if not TYPE_CHECKING:
+    miniexp_stringp = libdjvulibre.cdll.miniexp_stringp
+    miniexp_stringp.argtypes = [miniexp_t]
+    miniexp_stringp.restype = bool
+else:
+    def miniexp_stringp(p: miniexp_t) -> bool:
+        """Test if a miniexp is a string expression.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            Whether `p` is a string expression.
+        """
+
+
+if not TYPE_CHECKING:
+    # ctypes fails to convert to result to bytes correctly for some reason.
+    # The result of the miniexp_concat function produces gibberish when stringified, for example.
+    # This only affects GIL-enabled Python, however.
+    if (is_gil_enabled := getattr(sys, '_is_gil_enabled', None)) is None or is_gil_enabled():
+        def miniexp_to_str(p: miniexp_t) -> bytes | None:
+            c_string = ctypes.c_char_p()
+            miniexp_to_lstr(p, ctypes.pointer(c_string))
+            return c_string.value
+
+        def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
+            n = libdjvulibre.cdll.miniexp_to_lstr(p, sp)
+
+            if value := sp.contents.value:
+                sp.contents.value = value[:n]
+
+            return n
+    else:
+        miniexp_to_str = libdjvulibre.cdll.miniexp_to_str
+        miniexp_to_str.argtypes = [miniexp_t]
+        miniexp_to_str.restype = ctypes.c_char_p
+
+        miniexp_to_lstr = libdjvulibre.cdll.miniexp_to_lstr
+        miniexp_to_lstr.argtypes = [miniexp_t, ctypes.POINTER(ctypes.c_char_p)]
+        miniexp_to_lstr.restype = ctypes.c_int
+else:
+    def miniexp_to_str(p: miniexp_t) -> bytes | None:
+        """Extract the value of a string miniexp.
+
+        Due to a memory alignment issue, a Python implementation is used when the GIL is enabled.
+
+        Args:
+            p: Any miniexp.
+
+        Returns:
+            The value of `p` if it is a string miniexp and None otherwise.
+        """
+
+    def miniexp_to_lstr(p: miniexp_t, sp: 'ctypes._Pointer[ctypes.c_char_p]') -> int:
+        """Get the length and value of a string miniexp.
+
+        Due to a memory alignment issue, a Python implementation is used when the GIL is enabled.
+
+        Args:
+            p: Any miniexp.
+            sp: A pointer to a C string to assign the value of `p` to. It will be assigned the null pointer if `p` is not a string miniexp.
+
+        Returns:
+            The length of `p` if it is a string miniexp and 0 otherwise.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_string = libdjvulibre.cdll.miniexp_string
+    miniexp_string.argtypes = [ctypes.c_char_p]
+    miniexp_string.restype = miniexp_t
+else:
+    def miniexp_string(p: bytes) -> miniexp_t:
+        """Construct a string expression from a string.
+
+        Args:
+            p: The string to use.
+
+        Returns:
+            A string miniexp.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_lstring = libdjvulibre.cdll.miniexp_lstring
+    miniexp_lstring.argtypes = [ctypes.c_size_t, ctypes.c_char_p]
+    miniexp_lstring.restype = miniexp_t
+else:
+    # ruff: ignore[builtin-argument-shadowing]
+    def miniexp_lstring(len: int, p: bytes) -> miniexp_t:
+        """Construct a miniexp by copying the first n bytes of a string.
+
+        The same as miniexp_substring from the perspective of the Python FFI.
+
+        Args:
+            len: The number of bytes.
+            p: The byte encoding of a string.
+
+        Returns:
+            A string miniexp.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_substring = libdjvulibre.cdll.miniexp_substring
+    miniexp_substring.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
+    miniexp_substring.restype = miniexp_t
+else:
+    # ruff: ignore[builtin-argument-shadowing]
+    def miniexp_substring(p: bytes, len: int) -> miniexp_t:
+        """Construct a miniexp by copying at most n bytes of a string.
+
+        The same as miniexp_lstring from the perspective of the Python FFI.
+
+        Args:
+            len: The number of bytes.
+            p: The byte encoding of a string.
+
+        Returns:
+            A string miniexp.
+        """
+
+
+if not TYPE_CHECKING:
+    miniexp_concat = libdjvulibre.cdll.miniexp_concat
+    miniexp_concat.argtypes = [miniexp_t]
+    miniexp_concat.restype = miniexp_t
+else:
+    def miniexp_concat(l: miniexp_t) -> miniexp_t:
+        """Concatenate all direct string subexpressions in a list into a single string miniexp.
+
+        Args:
+            l: The list miniexp to concatenate.
+
+        Returns:
+            The concatenated string. If the argument is a cyclic list, return the empty list.
         """
