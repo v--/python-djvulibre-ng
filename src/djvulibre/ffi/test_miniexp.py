@@ -265,5 +265,5 @@ class TestMiniexpFloatnum:
         expr = miniexp.miniexp_number(3)
         assert not miniexp.miniexp_floatnump(expr)
         assert miniexp.miniexp_doublep(expr)
-        assert miniexp.miniexp_to_double(expr) == 3
+        assert miniexp.miniexp_to_double(expr) == 3.0
     # ruff: enable[float-equality-comparison]

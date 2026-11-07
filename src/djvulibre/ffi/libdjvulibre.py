@@ -5,10 +5,11 @@ import importlib
 import logging
 import os.path
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import ParamSpec, TypeVar
 
+from .ctypes_helpers import wrap_dll_function_extended
 from .exceptions import DjVuLibreCtypesError, DjVuLibreLibraryLoadError
 
 
@@ -19,6 +20,10 @@ except ImportError as err:
 
 
 logger = logging.getLogger(__name__)
+
+
+P = ParamSpec('P')
+R = TypeVar('R')
 
 
 @dataclass
@@ -60,6 +65,9 @@ class LibDjVuLibre:
             raise DjVuLibreLibraryLoadError(f'Cannot determine API version for {cdll._name}')
 
         self.estimated_api_version = 24
+
+    def wrap_function(self, fun: Callable[P, R]) -> Callable[P, R]:
+        return wrap_dll_function_extended(self.cdll)(fun)
 
 
 def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
@@ -140,10 +148,6 @@ libdjvulibre = load_libdjvulibre(soversions=[21])
 """A ctypes wrapper around libdjvulibre."""
 
 
-if not TYPE_CHECKING:
-    ddjvu_get_version_string = libdjvulibre.cdll.ddjvu_get_version_string
-    ddjvu_get_version_string.argtypes = []
-    ddjvu_get_version_string.restype = ctypes.c_char_p
-else:
-    def ddjvu_get_version_string() -> bytes:
-        """Get a version string of the loaded library."""
+@libdjvulibre.wrap_function
+def ddjvu_get_version_string() -> bytes | None:
+    """Get a version string of the loaded library."""
