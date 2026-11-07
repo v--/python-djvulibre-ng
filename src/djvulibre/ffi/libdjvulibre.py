@@ -7,9 +7,9 @@ import os.path
 import sys
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import ParamSpec, TypeVar
+from typing import Annotated, ParamSpec, TypeVar
 
-from .ctypes_helpers import wrap_dll_function_extended
+from .ctypes_helpers import CType, wrap_dll_function_extended
 from .exceptions import DjVuLibreCtypesError, DjVuLibreLibraryLoadError
 
 
@@ -149,5 +149,5 @@ libdjvulibre = load_libdjvulibre(soversions=[21])
 
 
 @libdjvulibre.wrap_function
-def ddjvu_get_version_string() -> bytes | None:
+def ddjvu_get_version_string() -> Annotated[bytes | None, CType(ctypes.c_char_p)]:
     """Get a version string of the loaded library."""

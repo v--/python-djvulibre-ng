@@ -112,7 +112,7 @@ def miniexp_symbolp(p: miniexp_t) -> bool:
 
 
 @libdjvulibre.wrap_function
-def miniexp_to_name(p: miniexp_t) -> bytes | None:
+def miniexp_to_name(p: miniexp_t) -> Annotated[bytes | None, CType(ctypes.c_char_p)]:
     """Extract the value of a symbol miniexp.
 
     Args:
@@ -124,7 +124,7 @@ def miniexp_to_name(p: miniexp_t) -> bytes | None:
 
 
 @libdjvulibre.wrap_function
-def miniexp_symbol(name: bytes) -> miniexp_t:
+def miniexp_symbol(name: Annotated[bytes, CType(ctypes.c_char_p)]) -> miniexp_t:
     """Get the unique symbol miniexp with a given name.
 
     Args:
@@ -433,7 +433,7 @@ if (is_gil_enabled := getattr(sys, '_is_gil_enabled', None)) is None or is_gil_e
         return n
 else:
     @libdjvulibre.wrap_function
-    def miniexp_to_str(p: miniexp_t) -> bytes | None:
+    def miniexp_to_str(p: miniexp_t) -> Annotated[bytes | None, CType(ctypes.c_char_p)]:
         """Extract the value of a string miniexp.
 
         Due to a memory alignment issue, a Python implementation is used when the GIL is enabled.
@@ -464,7 +464,7 @@ else:
 
 
 @libdjvulibre.wrap_function
-def miniexp_string(p: bytes) -> miniexp_t:
+def miniexp_string(p: Annotated[bytes, CType(ctypes.c_char_p)]) -> miniexp_t:
     """Construct a string expression from a string.
 
     Args:
@@ -477,7 +477,7 @@ def miniexp_string(p: bytes) -> miniexp_t:
 
 @libdjvulibre.wrap_function
 # ruff: ignore[builtin-argument-shadowing]
-def miniexp_lstring(len: Annotated[int, CType(ctypes.c_size_t)], p: bytes) -> miniexp_t:
+def miniexp_lstring(len: Annotated[int, CType(ctypes.c_size_t)], p: Annotated[bytes, CType(ctypes.c_char_p)]) -> miniexp_t:
     """Construct a miniexp by copying the first n bytes of a string.
 
     The same as miniexp_substring from the perspective of the Python FFI.
@@ -493,7 +493,7 @@ def miniexp_lstring(len: Annotated[int, CType(ctypes.c_size_t)], p: bytes) -> mi
 
 @libdjvulibre.wrap_function
 # ruff: ignore[builtin-argument-shadowing]
-def miniexp_substring(p: bytes, len: Annotated[int, CType(ctypes.c_size_t)]) -> miniexp_t:
+def miniexp_substring(p: Annotated[bytes, CType(ctypes.c_char_p)], len: Annotated[int, CType(ctypes.c_size_t)]) -> miniexp_t:
     """Construct a miniexp by copying at most n bytes of a string.
 
     The same as miniexp_lstring from the perspective of the Python FFI.

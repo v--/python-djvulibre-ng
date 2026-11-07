@@ -24,12 +24,7 @@ def _map_type_hint(hint: type) -> type:
             if isinstance(item, CType):
                 return item.override
 
-    match hint:
-        case _ if hint is bytes or hint == bytes | None:
-            return ctypes.c_char_p
-
-        case _:
-            return hint
+    return hint
 
 
 def wrap_dll_function_extended(dll: ctypes.CDLL) -> Callable[[Callable[P, R]], Callable[P, R]]:
