@@ -15,13 +15,7 @@ nav = [
 [project.plugins.api-autonav]
 modules = ["src/djvulibre"]
 exclude = [
-  "djvulibre.ffi.test_libdjvulibre",
-  "djvulibre.ffi.miniexp.test_floatnum",
-  "djvulibre.ffi.miniexp.test_list",
-  "djvulibre.ffi.miniexp.test_number",
-  "djvulibre.ffi.miniexp.test_object",
-  "djvulibre.ffi.miniexp.test_string",
-  "djvulibre.ffi.miniexp.test_symbol",
+  "re:\\.test_.*$",
 ]
 
 [project.plugins.mkdocstrings.handlers.python]
