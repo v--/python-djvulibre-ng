@@ -32,7 +32,7 @@ class LibDjVuLibre:
 
     Args:
         cdll: The ctypes wrapper.
-        soversion: The soversion supposedly loaded.
+        supposed_soversion: The soversion supposedly loaded.
     """
 
     cdll: ctypes.CDLL
@@ -41,13 +41,13 @@ class LibDjVuLibre:
     supposed_soversion: int
     """The soversion supposedly loaded.
 
-    Realistically, this should be 21.
+    Realistically, this should equal 21.
     """
 
     estimated_api_version: int
     """The C API version determined by inspecting the loaded symbols.
 
-    Realistically, this should be 24.
+    Realistically, this should equal 24.
 
     Note that the DDJVUAPI_VERSION constant in ddjvuapi.h may mistakenly report the API version as 23 instead of 24.
     """
@@ -67,6 +67,16 @@ class LibDjVuLibre:
         self.estimated_api_version = 24
 
     def wrap_function(self, fun: Callable[P, R]) -> Callable[P, R]:
+        """Convenience wrapper for [`wrap_dll_function_extended`](...wrap_dll_function_extended).
+
+        [`ViatException`](..ViatException).
+
+        Args:
+            fun: A function with no body whose type hints are used to call the wrapped FFI function.
+
+        Returns:
+            The wrapped FFI function.
+        """
         return wrap_dll_function_extended(self.cdll)(fun)
 
 

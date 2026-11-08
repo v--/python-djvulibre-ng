@@ -8,17 +8,22 @@ repo_url = "https://github.com/v--/python-djvulibre-ng"
 repo_name = "v--/python-djvulibre-ng"
 watch = ["README.md"]
 nav = [
-  { "Index" = "index.md" },
-  { "API Reference" = [
-    { "FFI" = [
-      { "djvulibre.ffi" = "api/ffi/index.md" },
-      { "djvulibre.ffi.libdjvulibre" = "api/ffi/libdjvulibre.md" },
-      { "djvulibre.ffi.miniexp" = "api/ffi/miniexp.md" },
-    ] },
-  ] },
+  { "Index" = "index.md" }
 ]
 
 # mkdocstrings
+[project.plugins.api-autonav]
+modules = ["src/djvulibre"]
+exclude = [
+  "djvulibre.ffi.test_libdjvulibre",
+  "djvulibre.ffi.miniexp.test_floatnum",
+  "djvulibre.ffi.miniexp.test_list",
+  "djvulibre.ffi.miniexp.test_number",
+  "djvulibre.ffi.miniexp.test_object",
+  "djvulibre.ffi.miniexp.test_string",
+  "djvulibre.ffi.miniexp.test_symbol",
+]
+
 [project.plugins.mkdocstrings.handlers.python]
 inventories = ["https://docs.python.org/3/objects.inv"]
 paths = ["src"]
@@ -31,8 +36,7 @@ show_symbol_type_heading = true
 show_symbol_type_toc = true
 unwrap_annotated = true
 relative_crossrefs = true
-
-[project.plugins.markdown-exec]
+scoped_crossrefs = true
 
 [project.theme]
 # Zensical requires an explicit list of "theme features".

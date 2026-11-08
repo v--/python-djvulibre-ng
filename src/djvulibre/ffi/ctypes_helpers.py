@@ -14,8 +14,14 @@ R = TypeVar('R')
 
 @dataclass
 class CType:
-    """Class for annotating overrides of automated ctypes annotations."""
+    """Class for annotating overrides of automated ctypes annotations.
+
+    Args:
+        override: The type to use for ctypes's argument system.
+    """
+
     override: type
+    """The type to use for ctypes's argument system."""
 
 
 def _map_type_hint(hint: type) -> type:
@@ -31,6 +37,12 @@ def wrap_dll_function_extended(dll: ctypes.CDLL) -> Callable[[Callable[P, R]], C
     """Wrap a function from a dynamic library based on a Python function's type hint.
 
     Based on the Python 3.16 method with the same name, but with added support for return type overrides.
+
+    Args:
+        dll: The ctypes library wrapper.
+
+    Returns:
+        A decorator that takes a Python function and exposes the corresponding FFI function based on its name and type.
     """
 
     def decorator(fun: Callable[P, R]) -> Callable[P, R]:
