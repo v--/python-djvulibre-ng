@@ -3,18 +3,15 @@ name = "djvulibre-ng"
 description = "Modernized bindings for DjVuLibre"
 version = "0.0.0"
 requires-python = ">=3.11"
-dependencies = [
-  "djvulibre-bin @ https://github.com/v--/djvulibre-bin/raw/refs/heads/master/dist/djvulibre_bin-3.5.30.1.post1-py3-none-win_amd64.whl ; sys_platform=='win32' and platform_machine=='AMD64'"
-]
+dependencies = []
 
 classifiers = [
   "Private :: Do Not Upload",
 ]
 
 [build-system]
-# uv build complains if no upper bound is set, but it updates its minor versions often, so we put a major version just to shut it up
-requires = ["uv_build (>=0.10, <1)"]
-build-backend = "uv_build"
+requires = ["hatchling (>=1.15)"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 lint = [
@@ -51,9 +48,30 @@ dev = [
 [tool.uv]
 resolution = "lowest-direct"
 
-[tool.uv.build-backend]
-module-name = "djvulibre"
-source-include = ["REUSE.toml"]
+# hatch
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/**/*.py",
+  "src/**/py.typed",
+  "src/djvulibre/bin/*",
+  "docs/**/*.md",
+  "LICENSES/*.txt",
+  "CHANGELOG.md",
+  "README.md",
+  "REUSE.toml",
+  "zensical.toml",
+  "pyproject.toml",
+  "poe_tasks.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+  "src/djvulibre/**/*.py",
+  "src/djvulibre/bin/*",
+]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "src/helpers/hatch_build.py"
 
 # These options are helpful for debugging library loading errors
 [tool.pytest]
@@ -72,10 +90,10 @@ ignore = [
 
 # mypy
 [tool.mypy]
-packages = ["djvulibre"]
+packages = ["djvulibre", "helpers"]
 
 [[tool.mypy.overrides]]
 module = [
-  "djvulibre_bin.*",
+  "hatchling.*",
 ]
 ignore_missing_imports = true

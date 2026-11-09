@@ -84,16 +84,10 @@ def _load_libdjvulibre_cdll(soversion: int) -> ctypes.CDLL:
     match sys.platform:
         case 'win32':
             try:
-                # ruff: ignore[import-outside-top-level]
-                from djvulibre_bin import LIBDJVULIBRE_RESOURCE_DIRECTORY, LIBDJVULIBRE_VERSION
-            except ImportError as err:
-                raise DjVuLibreLibraryLoadError('Cannot load the djvulibre_bin Python package that contains libdjvulibre.dll') from err
-
-            if not (soversion == 21 and LIBDJVULIBRE_VERSION.startswith('3.5.')):
-                logger.warning(f'Possible mismatch between requested libdjvulibre soversion {soversion} and DjVuLibre version {LIBDJVULIBRE_VERSION} from djvulibre_bin')
-
-            with importlib.resources.as_file(LIBDJVULIBRE_RESOURCE_DIRECTORY / 'libdjvulibre') as path:
-                return ctypes.CDLL(str(path))
+                with importlib.resources.as_file(importlib.resources.files('djvulibre') / 'bin' / 'libdjvulibre') as path:
+                    return ctypes.CDLL(str(path))
+            except OSError as err:
+                raise DjVuLibreLibraryLoadError('Could not load libdjvulibre.dll that is supposed to be embedded into the package.') from err
 
         case 'darwin':
             lib_name = f'libdjvulibre.{soversion}.dylib'
