@@ -18,3 +18,6 @@ cmd = "zensical build"
 
 [tasks.serve-docs]
 cmd = "zensical serve"
+
+[tasks.fetch-bin]
+script = "helpers.fetch_bin:fetch_bin"

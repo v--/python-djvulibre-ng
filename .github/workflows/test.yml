@@ -40,6 +40,10 @@ jobs:
         python-version: ${{ matrix.python }}
         activate-environment: true
 
+    - name: Download prebuilt binary on Windows
+      if: startsWith(matrix.os, 'windows')
+      run: uv run --no-sync --module src.helpers.fetch_bin
+
     - name: Install dependencies
       run: uv sync --frozen --group test --no-default-groups
 

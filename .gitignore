@@ -6,13 +6,4 @@ __pycache__
 .venv
 
 # Python build directory
-/dist
-
-# Meson build directory
-/build
-/builddir
-
-# Meson subprojects
-/subprojects/.wraplock
-/subprojects/djvulibre
-/subprojects/djvulibre-bin
+/src/djvulibre/bin
